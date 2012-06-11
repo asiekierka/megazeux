@@ -599,7 +599,7 @@ fi
 #
 # Force disable networking.
 #
-if [ "$EDITOR" = "false" -o "$PLATFORM" = "unix" -o "$PLATFORM" = "psp" \
+if [ "$EDITOR" = "false" -o "$PLATFORM" = "psp" \
   -o "$PLATFORM" = "nds" -o "$PLATFORM" = "wii" ]; then
 	echo "Force-disabling networking (nonsensical or unsupported)."
 	NETWORK="false"
