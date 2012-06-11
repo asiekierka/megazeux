@@ -1694,6 +1694,31 @@ static void fwrite_counter_write(struct world *mzx_world,
   }
 }
 
+// 2.84-asie
+
+static int http_dl_read(struct world *mzx_world,
+ const struct function_counter *counter, const char *name, int id)
+{
+  mzx_world->special_counter_return = HTTP_DOWNLOAD;
+  return 0;
+}
+
+static int http_fn_read(struct world *mzx_world,
+ const struct function_counter *counter, const char *name, int id)
+{
+  mzx_world->special_counter_return = HTTP_FILENAME;
+  return 0;
+}
+
+static int http_status_read(struct world *mzx_world,
+ const struct function_counter *counter, const char *name, int id)
+{
+  mzx_world->special_counter_return = HTTP_STATUS;
+  return 0;
+}
+
+// end 2.84-asie
+
 static int lava_walk_read(struct world *mzx_world,
  const struct function_counter *counter, const char *name, int id)
 {
@@ -2406,6 +2431,9 @@ static const struct function_counter builtin_counters[] =
   { "fwrite_pos", 0x0209, fwrite_pos_read, fwrite_pos_write },       // 2.60
   { "green_value", 0x0209, green_value_read, green_value_write },    // 2.60
   { "horizpld", 0, horizpld_read, NULL },                            // <=2.51
+  { "http_download", 0x0254, http_dl_read, NULL },                   // 2.84-asie
+  { "http_filename", 0x0254, http_fn_read, NULL },                   // 2.84-asie
+  { "http_status", 0x0254, http_status_read, NULL },                 // 2.84-asie
   { "input", 0, input_read, input_write },                           // <=2.51
   { "inputsize", 0, inputsize_read, inputsize_write },               // <=2.51
   { "int2bin", 0x0209, int2bin_read, int2bin_write },                // 2.60
