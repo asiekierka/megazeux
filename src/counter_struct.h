@@ -102,8 +102,10 @@ enum special_counter_return
   FOPEN_LOAD_BC,
 #ifndef CONFIG_DEBYTECODE
   FOPEN_SAVE_ROBOT,
-  FOPEN_SAVE_BC
+  FOPEN_SAVE_BC,
 #endif
+  HTTP_DOWNLOAD,
+  HTTP_SET_FILENAME
 };
 
 __M_END_DECLS

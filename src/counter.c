@@ -1706,15 +1706,14 @@ static int http_dl_read(struct world *mzx_world,
 static int http_fn_read(struct world *mzx_world,
  const struct function_counter *counter, const char *name, int id)
 {
-  mzx_world->special_counter_return = HTTP_FILENAME;
+  mzx_world->special_counter_return = HTTP_SET_FILENAME;
   return 0;
 }
 
 static int http_status_read(struct world *mzx_world,
  const struct function_counter *counter, const char *name, int id)
 {
-  mzx_world->special_counter_return = HTTP_STATUS;
-  return 0;
+  return mzx_world->http_status;
 }
 
 // end 2.84-asie

@@ -195,6 +195,13 @@ struct world
   bool editing;
 #endif
 
+// 2.84-asie
+#ifdef CONFIG_NETWORK
+  int http_status;
+  char *http_filename;
+#endif
+// end 2.84-asie
+
   // Keep this open, just once
   FILE *help_file;
 
