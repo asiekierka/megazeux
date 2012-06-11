@@ -196,8 +196,8 @@ struct world
 #endif
 
 // 2.84-asie
-#ifdef CONFIG_NETWORK
   int http_status;
+#ifdef CONFIG_NETWORK
   char *http_filename;
 #endif
 // end 2.84-asie
