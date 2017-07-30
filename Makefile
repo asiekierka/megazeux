@@ -81,14 +81,16 @@ ifeq (${DEBUG},1)
 #
 # Disable the optimizer for "true" debug builds
 #
-CFLAGS   = -O0 -DDEBUG
-CXXFLAGS = -O0 -DDEBUG
+CFLAGS   = -O3 -DDEBUG
+CXXFLAGS = -O3 -DDEBUG
+LDFLAGS  = -O3 -DDEBUG
 else
 #
 # Optimized builds have assert() compiled out
 #
 CFLAGS   += ${OPTIMIZE_CFLAGS} -DNDEBUG
 CXXFLAGS += ${OPTIMIZE_CFLAGS} -DNDEBUG
+LDFLAGS  += ${OPTIMIZE_CFLAGS} -DNDEBUG
 endif
 
 #

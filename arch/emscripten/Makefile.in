@@ -1,0 +1,20 @@
+CC      = emcc
+CXX     = em++
+AR      = emar
+OBJCOPY = /bin/true
+STRIP   = /bin/true
+
+SDL_CFLAGS = -s USE_SDL=2
+SDL_LDFLAGS = -s USE_SDL=2
+
+VORBIS_CFLAGS = -s USE_OGG=1 -s USE_VORBIS=1
+VORBIS_LDFLAGS = -s USE_OGG=1 -s USE_VORBIS=1
+
+ZLIB_CFLAGS = -s USE_ZLIB=1
+ZLIB_LDFLAGS = -s USE_ZLIB=1
+
+LIBPNG_CFLAGS = -s USE_LIBPNG=1
+LIBPNG_LDFLAGS = -s USE_LIBPNG=1
+
+BINEXT = .html
+ARCH_LDFLAGS = --preload-file data

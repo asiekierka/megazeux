@@ -22,6 +22,7 @@ usage() {
 	echo "  unix           Unix-like / Linux / Solaris / BSD / Embedded"
 	echo "  unix-devel     As above, but for running from current dir"
 	echo "  darwin         Macintosh OS X (not Classic)"
+	echo "  emscripten     Experimental Emscripten port"
 	echo "  psp            Experimental PSP port"
 	echo "  gp2x           Experimental GP2X port"
 	echo "  nds            Experimental NDS port"
@@ -375,6 +376,8 @@ if [ "$PLATFORM" = "darwin" ]; then
 	SYSCONFDIR="../Resources"
 elif [ "$PLATFORM" = "android" ]; then
 	SYSCONFDIR="/data/megazeux"
+elif [ "$PLATFORM" = "emscripten" ]; then
+	SYSCONFDIR="/data/megazeux"
 elif [ "$PLATFORM" != "unix" ]; then
 	if [ "$SYSCONFDIR_SET" != "true" ]; then
 		SYSCONFDIR="."
@@ -435,6 +438,12 @@ elif [ "$PLATFORM" = "darwin" ]; then
 	echo "#define SHAREDIR \"$SHAREDIR\""              >> src/config.h
 	echo "#define USERCONFFILE \".megazeux-config\"" >> src/config.h
 elif [ "$PLATFORM" = "android" ]; then
+	SHAREDIR=/data/megazeux
+	GAMESDIR=/data/megazeux
+	BINDIR=/data/megazeux
+	echo "#define CONFFILE \"config.txt\"" >> src/config.h
+	echo "#define SHAREDIR \"$SHAREDIR\""  >> src/config.h
+elif [ "$PLATFORM" = "emscripten" ]; then
 	SHAREDIR=/data/megazeux
 	GAMESDIR=/data/megazeux
 	BINDIR=/data/megazeux
@@ -575,7 +584,8 @@ fi
 # Force-disable OpenGL and overlay renderers on PSP, GP2X and NDS
 #
 if [ "$PLATFORM" = "psp" -o "$PLATFORM" = "gp2x" \
-  -o "$PLATFORM" = "nds" -o "$PLATFORM" = "wii" ]; then
+  -o "$PLATFORM" = "nds" -o "$PLATFORM" = "wii" \
+  -o "$PLATFORM" = "emscripten" ]; then
   	echo "Force-disabling OpenGL and overlay renderers."
 	GL="false"
 	OVERLAY="false"
@@ -627,7 +637,8 @@ fi
 # Force disable modular DSOs.
 #
 if [ "$PLATFORM" = "gp2x" -o "$PLATFORM" = "nds" \
-  -o "$PLATFORM" = "psp"  -o "$PLATFORM" = "wii" ]; then
+  -o "$PLATFORM" = "psp"  -o "$PLATFORM" = "wii" \
+  -o "$PLATFORM" = "emscripten" ]; then
 	echo "Force-disabling modular build (nonsensical or unsupported)."
 	MODULAR="false"
 fi

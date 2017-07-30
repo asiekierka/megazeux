@@ -38,6 +38,20 @@
 
 #include "tempfile.h"
 
+#ifdef __EMSCRIPTEN__
+static int get_temp_dir(char *buf, int size)
+{
+	buf[0] = '\0';
+	return 0;
+}
+
+FILE *make_temp_file(char **filename) {
+	return NULL;
+}
+
+void unlink_temp_file(char *temp) {
+}
+#else
 #ifdef WIN32
 
 int mkstemp(char *);
@@ -145,4 +159,5 @@ void unlink_temp_file(char *temp)
 	}
 }
 
+#endif
 #endif

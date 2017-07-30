@@ -14,6 +14,9 @@ libxmp_include = -I${libxmp_base}/include -I${libxmp_base}/src \
 
 libxmp_cflags = -I${libxmp_base}/src/win32 ${libxmp_include} -w -O3
 
+ifeq (${PLATFORM},emscripten)
+libxmp_cflags += -DHAVE_FNMATCH -DHAVE_MKSTEMP
+endif
 
 WIN32_OBJS	= ptpopen.o
 
