@@ -81,9 +81,9 @@ ifeq (${DEBUG},1)
 #
 # Disable the optimizer for "true" debug builds
 #
-CFLAGS   = -O3 -DDEBUG
-CXXFLAGS = -O3 -DDEBUG
-LDFLAGS  = -O3 -DDEBUG
+CFLAGS   = -O0 -DDEBUG
+CXXFLAGS = -O0 -DDEBUG
+LDFLAGS  = -O0 -DDEBUG
 else
 #
 # Optimized builds have assert() compiled out

@@ -43,7 +43,7 @@
 #define FULLSCREEN_HEIGHT_DEFAULT 363
 #define FORCE_BPP_DEFAULT 8
 #define FULLSCREEN_DEFAULT 1
-#elif defined(CONFIG_WII)
+#elif defined(CONFIG_WII) || defined(__EMSCRIPTEN__)
 #define AUDIO_SAMPLE_RATE 48000
 #elif defined(ANDROID)
 #define FORCE_BPP_DEFAULT 16

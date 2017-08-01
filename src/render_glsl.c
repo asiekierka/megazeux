@@ -569,7 +569,7 @@ static bool glsl_set_video_mode(struct graphics_data *graphics,
   // We need a specific version of OpenGL; desktop GL must be 2.0.
   // All OpenGL ES 2.0 implementations are supported, so don't do
   // the check with EGL configurations (EGL implies OpenGL ES).
-#ifndef CONFIG_EGL
+#if !defined(CONFIG_EGL) && !defined(__EMSCRIPTEN__)
   {
     static bool initialized = false;
 

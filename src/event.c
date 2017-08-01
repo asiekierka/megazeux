@@ -497,7 +497,13 @@ void update_event_status_intake(void)
 
   last_update_time = get_ticks();
 
+#ifdef __EMSCRIPTEN__
+  if (delay_ticks < 2) delay_ticks = 2;
+  delay(1);
+  wait_event(delay_ticks - 1);
+#else
   wait_event(delay_ticks);
+#endif
 }
 
 static enum keycode emit_keysym_wrt_numlock(enum keycode key)

@@ -1,0 +1,37 @@
+[
+	"_main",
+	"_title_screen",
+	"_load_world_selection",
+	"_choose_file_ch",
+	"_new_file",
+	"_file_manager",
+	"_run_dialog",
+	"_game_settings",
+	"_help_system",
+	"_help_display",
+	"_play_game",
+	"_confirm",
+	"_update_event_status_delay",
+	"_delay",
+	"_vquick_fadeout",
+	"_vquick_fadein",
+	"_insta_fadein",
+	"_insta_fadeout",
+
+	"_scroll_edit",
+	"_grab_item",
+	"_move_player",
+	"_update_player",
+
+	"_robot_box_display",
+	"_run_robot",
+	"_update",
+	"_update_board",
+
+	"_char_selection_ext",
+	"_char_selection",
+	"_intake",
+	"_idle_input_box",
+	"_click_input_box",
+	"_update_event_status_intake"
+]

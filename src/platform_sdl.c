@@ -40,9 +40,14 @@ PSP_MAIN_THREAD_STACK_SIZE_KB(512);
 #include <unistd.h> //for chdir, execl
 #endif
 
+#include <emscripten.h>
 void delay(Uint32 ms)
 {
+#ifdef __EMSCRIPTEN__
+  emscripten_sleep_with_yield(ms);
+#else
   SDL_Delay(ms);
+#endif
 }
 
 Uint32 get_ticks(void)
