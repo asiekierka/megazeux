@@ -95,7 +95,7 @@ static boolean psxgpu_set_video_mode(struct graphics_data *graphics,
   regGP1 = (0x07<<24)
     | ((0x88-disp_half_height+disp_height)<<10)
     | ((0x88-disp_half_height)); // Vertical
-  regGP0 = 0xE1000600; // Texpage: Enable dither + draw-on-front-buffer
+  regGP0 = 0xE100060C; // Texpage: Enable dither + draw-on-front-buffer + 4bpp
   regGP0 = 0xE2000000; // Texwindow: Enable full area
   regGP0 = (0xE3<<24)
     | ((0)<<10) | ((0)); // Drawing top-left corner
@@ -182,7 +182,6 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
   uint32_t cmd_bgrect_0;
   uint32_t cmd_rect_pos;
   uint32_t cmd_rect_siz;
-  uint32_t cmd_texpage_0;
   uint32_t cmd_fgrect_0;
   uint32_t cmd_fgrect_2;
 
@@ -206,8 +205,6 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
       for(cx = 0; cx < 80; cx++, gptr++, chain_ptr_value += sizeof(*gptr), cmd_rect_pos += 8)
       {
         gptr->chain = chain_ptr_value;
-        gptr->texpage_cmd = 0x00000000;
-        gptr->texpage_nop = 0x00000000;
         gptr->bgrect_cmd = 0x60000000;
         gptr->bgrect_pos = cmd_rect_pos;
         gptr->bgrect_siz = cmd_rect_siz;
@@ -227,8 +224,8 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
   {
     for(cx = 0; cx < 80; cx++, cp++, gptr++)
     {
-      tx = ((cp->char_value&0x1FF));
-      ty = ((cp->char_value&0xFFF)>>9)*14+350-0x100;
+      tx = ((cp->char_value&0x1F));
+      ty = ((cp->char_value&0x1FF)>>5)*14;
 
       // Draw a rectangle for the background
       // Draw a texture for the foreground
@@ -237,21 +234,12 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
       cmd_bgrect_0 = ((0x60<<24)|*(uint32_t *)cobg) ^ psx_flip_mask;
       cmd_fgrect_0 = (((0x64<<24)|*(uint32_t *)cofg) ^ psx_flip_mask);
 
-      // Texpage:
-      // + Enable dither
-      // + Enable draw-on-front-buffer
-      // + 4bpp
-      // + Set texture base X + Y
-      cmd_texpage_0 = (0xE1000610
-        | ((tx>>5)&0xF));
-
       // Foreground rectangle texcoords
       cmd_fgrect_2 = ((0<<22)
         |(40<<16)
         |((ty&0xFF)<<8)
         |((tx&0x1F)*8));
 
-      gptr->texpage_cmd = cmd_texpage_0;
       gptr->bgrect_cmd = cmd_bgrect_0;
       gptr->fgrect_cmd = cmd_fgrect_0;
       gptr->fgrect_tex = cmd_fgrect_2;
@@ -304,8 +292,8 @@ static void psxgpu_remap_char_range(struct graphics_data *graphics,
   printf("PSX: Remap charsets\n");
   for(i = first; i < first+count; i++)
   {
-    x = (i&((1<<9)-1))*2; y = (i>>9)*14+350;
-    //x = (i%320)*2; y = (i/320)*14;
+    x = (i&31)*2 + 768;
+    y = (i>>5)*14;
 
     init_char_data = 0x00000000;
     //init_char_data = 0x80008000;

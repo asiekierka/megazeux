@@ -142,6 +142,7 @@ vfile *vfopen_unsafe_ext(const char *filename, const char *mode,
     {
       if((flags & VF_BINARY) && (!(flags & VF_READ) || !(flags & VF_WRITE)))
       {
+#ifndef CONFIG_PSX
         if(flags & V_LARGE_BUFFER)
         {
           setvbuf(fp, NULL, _IOFBF, VFILE_LARGE_BUFFER_SIZE);
@@ -151,6 +152,9 @@ vfile *vfopen_unsafe_ext(const char *filename, const char *mode,
 
         if(flags & V_SMALL_BUFFER)
           setvbuf(fp, NULL, _IOFBF, VFILE_SMALL_BUFFER_SIZE);
+#else
+        setvbuf(fp, NULL, _IONBF, 0);
+#endif
       }
       else
         flags &= ~(V_SMALL_BUFFER | V_LARGE_BUFFER);

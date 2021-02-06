@@ -39,7 +39,7 @@ extern char end[];
 char *__brk_ptr = (char *)0;
 
 // PSX supports up to 16 file handles.
-uint8_t readbuf_data[16][2048];
+uint8_t *readbuf_data[16];
 int readbuf_fppos[16] = {
   -1, -1, -1, -1, -1, -1, -1, -1,
   -1, -1, -1, -1, -1, -1, -1, -1,
@@ -270,8 +270,13 @@ int close(int fildes)
 {
   int result;
 
+  // TODO: proper handling of stdin/stdout/stderr
+  if (fildes <= 2) {
+    __base_errno = EINVAL;
+    return -1;
+  }
   fildes = LIBC_TO_PSX_FD(fildes);
-  readbuf_pos[fildes] = -1;
+  readbuf_fppos[fildes] = -1;
   result = PSX_A04_FileClose(fildes);
   printf("close result %d: %d\n", fildes, result);
 
@@ -287,7 +292,8 @@ int close(int fildes)
   {
     // Success!
     readbuf_fname[fildes][0] = 0;
-    readbuf_pos[fildes] = -1;
+    readbuf_fppos[fildes] = -1;
+    free(readbuf_data[fildes]);
     return 0;
   }
 }
@@ -305,7 +311,7 @@ int isatty(int fildes)
   }
 }
 
-off_t lseek(int fildes, off_t offset, int whence)
+/* off_t lseek(int fildes, off_t offset, int whence)
 {
   int psx_whence;
   int result;
@@ -325,7 +331,7 @@ off_t lseek(int fildes, off_t offset, int whence)
 
     // This is a pain to track.
     case SEEK_CUR:
-      psx_whence = 1;
+      psx_whence = 0;
       printf("libcdbg: Seek cur hack %d %d\n", fildes, (int)offset);
       offset += readbuf_fppos[fildes];
       break;
@@ -382,6 +388,45 @@ off_t lseek(int fildes, off_t offset, int whence)
   {
     return readbuf_fppos[fildes];
   }
+} */
+
+off_t lseek(int fildes, off_t offset, int whence)
+{
+  // TODO: proper handling of stdin/stdout/stderr
+  if (fildes <= 2) {
+    __base_errno = EINVAL;
+    return -1;
+  }
+  fildes = LIBC_TO_PSX_FD(fildes);
+
+  if(readbuf_fname[fildes][0] == 0)
+  {
+    __base_errno = EBADF;
+    return (off_t)-1;
+  }
+
+  printf("=== SEEK %d %d %d\n", fildes, offset, whence);
+
+  switch(whence)
+  {
+    case SEEK_SET:
+      break;
+
+    case SEEK_CUR:
+      offset += readbuf_fppos[fildes];
+      break;
+
+    case SEEK_END:
+      offset = readbuf_stat[fildes].st_size + offset;
+      break;
+
+    default:
+      __base_errno = EINVAL;
+      return -1;
+  }
+
+  readbuf_fppos[fildes] = offset;
+  return readbuf_fppos[fildes];
 }
 
 int open(const char *path, int oflag, ...)
@@ -481,18 +526,18 @@ int open(const char *path, int oflag, ...)
   else
   {
     // Reset the read buffers.
-    readbuf_pos[fildes] = 2048;
+    readbuf_pos[fildes] = -1;
     readbuf_fppos[fildes] = 0;
     readbuf_fname[fildes][DIR_NAME_MAX] = 0;
-    fildes = PSX_TO_LIBC_FD(fildes);
+    readbuf_data[fildes] = malloc(2048);
     strncpy(readbuf_fname[fildes], temp_rel_path, DIR_NAME_MAX);
     memcpy(&readbuf_stat[fildes], &temp_stat, sizeof(struct stat));
     printf("libcdbg: ^-- altered result: %d\n", fildes);
-    return fildes;
+    return PSX_TO_LIBC_FD(fildes);
   }
 }
 
-ssize_t read(int fildes, void *buf, size_t nbyte)
+/* ssize_t read(int fildes, void *buf, size_t nbyte)
 {
   int result;
   int bytes_to_read;
@@ -578,6 +623,85 @@ ssize_t read(int fildes, void *buf, size_t nbyte)
   }
 
   return bytes_read;
+} */
+
+ssize_t read(int fildes, void *buf, size_t nbyte)
+{
+  int result;
+  int bytes_to_read;
+  int bytes_read = 0;
+  char *dp = (char *)buf;
+
+  // TODO: proper handling of stdin/stdout/stderr
+  if (fildes <= 2) {
+    __base_errno = EINVAL;
+    return -1;
+  }
+  fildes = LIBC_TO_PSX_FD(fildes);
+
+  // Ensure the buffer is actually open!
+  if(readbuf_fppos[fildes] == -1)
+  {
+    __base_errno = EIO;
+    return -1;
+  }
+
+//  printf("=== READ %s %d %d\n", readbuf_fname[fildes], fildes, nbyte);
+
+  while((int)nbyte > 0)
+  {
+    if (readbuf_pos[fildes] == (readbuf_fppos[fildes] & ~2047)) {
+//      printf("libcdbg: Cached Seek + Read %d %d %d\n", fildes, readbuf_pos[fildes], 0);
+      result = 2048;
+    } else {
+      printf("libcdbg: Seek %d %d %d\n", fildes, readbuf_fppos[fildes] & ~2047, 0);
+      result = PSX_A01_FileSeek(fildes, readbuf_fppos[fildes] & ~2047, 0);
+      printf("libcdbg: ^-- result: %d\n", result);
+
+      if (result >= 0)
+      {
+        printf("libcdbg: Read %d\n", fildes);
+        result = PSX_A02_FileRead(fildes, readbuf_data[fildes], 2048);
+        printf("libcdbg: ^-- result: %d\n", result);
+        if (result == 2048)
+          readbuf_pos[fildes] = readbuf_fppos[fildes] & ~2047;
+      }
+    }
+
+    if(result == 0)
+    {
+      // Probably EOF.
+      return bytes_read;
+    }
+    else if(result == -1)
+    {
+      // If we've grabbed some things, return.
+      if(bytes_read > 0)
+      {
+        return bytes_read;
+      }
+
+      // EIO can be set for "implementation-defined reasons".
+      // So let's use that!
+      result = PSX_B54_GetLastError();
+      printf("libcdbg: failed - error: %d\n", result);
+      __base_errno = EIO;
+      return -1;
+    }
+    else
+    {
+      bytes_to_read = 2048 - (readbuf_fppos[fildes] & 2047);
+      if (bytes_to_read > nbyte) bytes_to_read = nbyte;
+      nbyte -= bytes_to_read;
+
+//      printf("libcdbg: memcpy %d %d %d\n", bytes_read, readbuf_fppos[fildes], bytes_to_read);
+      memcpy(dp + bytes_read, readbuf_data[fildes] + (readbuf_fppos[fildes] & 2047), bytes_to_read);
+      readbuf_fppos[fildes] += bytes_to_read;
+      bytes_read += bytes_to_read;
+    }
+  }
+
+  return bytes_read;
 }
 
 ssize_t write(int fildes, const void *buf, size_t nbyte)
@@ -597,7 +721,14 @@ ssize_t write(int fildes, const void *buf, size_t nbyte)
     return nbyte;
   }
 
-  result = PSX_A03_FileWrite(LIBC_TO_PSX_FD(fildes), buf, nbyte);
+  // TODO: proper handling of stdin
+  if (fildes == 0) {
+    __base_errno = EINVAL;
+    return -1;
+  }
+  fildes = LIBC_TO_PSX_FD(fildes);
+
+  result = PSX_A03_FileWrite(fildes, buf, nbyte);
 
   if(result == -1)
   {
@@ -622,6 +753,7 @@ void nextfile_to_stat(const struct psx_dirent *dfollow, struct stat *restrict bu
 {
   char *p;
 
+  printf("libcdbg: filename %s\n", dfollow->filename);
   p = strchr(dfollow->filename, ';');
 
   if(p == NULL)
@@ -630,8 +762,9 @@ void nextfile_to_stat(const struct psx_dirent *dfollow, struct stat *restrict bu
   }
   else
   {
+    printf("libcdbg: filesize %d\n", dfollow->filesize);
     buf->st_mode = _IFREG;
-    buf->st_size = 0;
+    buf->st_size = dfollow->filesize;
   }
 }
 
@@ -640,6 +773,7 @@ int stat(const char *restrict path, struct stat *restrict buf)
   struct psx_dirent dfollow_base;
   struct psx_dirent *dfollow;
   int i;
+  int has_open_file = 0;
 
   // game requires this so pretend we have it
   printf("libcdbg: stat \"%s\"\n", path);
@@ -649,11 +783,15 @@ int stat(const char *restrict path, struct stat *restrict buf)
   // Check if we have a stat against this
   for(i = 0; i < 16; i++)
   {
-    if(!strcasecmp(readbuf_fname[i], temp_rel_path))
+    if(readbuf_fppos[i] >= 0)
     {
-      printf("stat cached as fd\n");
-      memcpy(buf, &readbuf_stat[i], sizeof(struct stat));
-      return 0;
+      has_open_file = 1;
+      if(!strcasecmp(readbuf_fname[i], temp_rel_path))
+      {
+        printf("stat cached as fd\n");
+        memcpy(buf, &readbuf_stat[i], sizeof(struct stat));
+        return 0;
+      }
     }
   }
 
@@ -666,6 +804,14 @@ int stat(const char *restrict path, struct stat *restrict buf)
 
   strcat(temp_psx_path, "*"); // FIXME UNSAFE
   printf("stat attempt: \"%s\"\n", temp_psx_path);
+
+  // TODO: close and reopen files
+  if(has_open_file > 0)
+  {
+    printf("BUG: cannot stat while file open\n");
+    __base_errno = EIO;
+    return -1;
+  }
 
   dfollow = &dfollow_base;
   dfollow = PSX_B42_firstfile(temp_psx_path, dfollow);

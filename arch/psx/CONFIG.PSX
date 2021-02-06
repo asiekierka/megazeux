@@ -3,4 +3,4 @@
 ./config.sh --platform psx --prefix /opt/candyk/arch/mipsel-elf --optimize-size \
             --disable-editor --disable-helpsys --disable-utils \
             --disable-libpng --enable-meter \
-            --disable-screenshots --enable-trace "$@"
+            --disable-screenshots --enable-release "$@"

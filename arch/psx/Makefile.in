@@ -23,7 +23,7 @@ EXTRA_LIBS = -lc
 
 MACHDEP = -msoft-float -EL -march=r3000 -L/opt/candyk/arch/mipsel-elf/mipsel-elf/lib
 
-ARCH_CFLAGS   += ${EXTRA_INCLUDES} ${MACHDEP} -Os
+ARCH_CFLAGS   += ${EXTRA_INCLUDES} ${MACHDEP}
 ARCH_CXXFLAGS += ${ARCH_CFLAGS}
 ARCH_LDFLAGS  += ${EXTRA_LIBS} ${MACHDEP} -Wl,-Ttext-segment=0x80010000
 

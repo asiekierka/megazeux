@@ -22,14 +22,6 @@ struct gpu_dma_layer_cell {
   //  or 0xFFFFFF to denote the end of the chain
   uint32_t chain;
 
-  // Texpage command (0xE1)
-  uint32_t texpage_cmd;
-
-  // A post-texpage NOP for safety (0x00)
-  // Mednafen won't complain. Nor will any other emulator.
-  // Real hardware is likely to decide not to draw the rectangle.
-  uint32_t texpage_nop;
-
   // Solid background rectangle (0x60)
   uint32_t bgrect_cmd;
   uint32_t bgrect_pos;

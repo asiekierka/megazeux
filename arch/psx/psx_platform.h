@@ -26,8 +26,6 @@
 // Map stderr over stdout
 #define PSX_TO_LIBC_FD(fd) ((fd) >= 2 ? (fd)+1 : (fd))
 #define LIBC_TO_PSX_FD(fd) ((fd) >= 2 ? (fd)-1 : (fd))
-//define PSX_TO_LIBC_FD(fd) fd
-//define LIBC_TO_PSX_FD(fd) fd
 
 // TODO: work out if making these all varargs also makes them safe to call
 int PSX_A00_FileOpen(const char *filename, int accessmode);
