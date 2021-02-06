@@ -65,14 +65,14 @@ boolean platform_init(void)
   PSX_SYS02_ExitCriticalSection();
 
   // TEST: firstfile/nextfile
-  printf("Doing a firstfile...\n");
+  iprintf("Doing a firstfile...\n");
   for(dfollow = PSX_B42_firstfile("cdrom:\\A\\*", &dfollow_buf); dfollow != NULL;
       dfollow = PSX_B43_nextfile(dfollow))
   {
     // Skip the ".." entry
     if(dfollow->filename[0] == 1) { continue; }
 
-    printf("File: \"%s\" %08X %08X %08X\n",
+    iprintf("File: \"%s\" %08X %08X %08X\n",
       dfollow->filename,
       (unsigned int)dfollow->fileoffs,
       (unsigned int)dfollow->filesize,

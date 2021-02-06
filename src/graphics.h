@@ -170,7 +170,9 @@ struct graphics_data
   struct video_layer video_layers[TEXTVIDEO_LAYERS];
   Uint32 current_layer;
   struct char_element *current_video;
+#ifndef CONFIG_PSX
   struct video_layer *sorted_video_layers[TEXTVIDEO_LAYERS];
+#endif
   boolean requires_extended;
 
   enum cursor_mode_types cursor_mode;

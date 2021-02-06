@@ -91,6 +91,16 @@ typedef unsigned char boolean;
 #include <nds.h>
 #endif
 
+#ifdef CONFIG_PSX
+// Use iprintf/iscanf on PSX to save ~50 KB
+#define sscanf siscanf
+#define printf iprintf
+#define fprintf fiprintf
+#define sprintf siprintf
+#define snprintf sniprintf
+#define vsnprintf vsniprintf
+#endif
+
 #ifdef CONFIG_WII
 #define BOOL _BOOL
 #include <gctypes.h>

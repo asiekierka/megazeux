@@ -35,7 +35,7 @@ static uint32_t psx_flip_mask = 0x00000000;
 
 static uint32_t *gpu_dma_write_ptr = NULL;
 // With a bit of padding...
-static uint32_t gpu_dma_buffers[2][80*25*sizeof(struct gpu_dma_layer_cell)/sizeof(uint32_t)+256];
+static uint32_t gpu_dma_buffers[1][80*25*sizeof(struct gpu_dma_layer_cell)/sizeof(uint32_t)+64];
 static uint32_t gpu_dma_index = 0;
 static boolean gpu_dma_is_seeded[2];
 
@@ -45,6 +45,8 @@ static boolean gpu_dma_is_seeded[2];
   *(gpu_dma_write_ptr++) = (x)
 #define GFULLSTART() \
   { \
+    while((regDMA_GPU_CHCR & (1<<24)) != 0) \
+      {} \
     gpu_dma_write_ptr = ( \
       gpu_dma_buffers[gpu_dma_index]); \
   }
@@ -58,8 +60,8 @@ static boolean gpu_dma_is_seeded[2];
     regDICR |= (1<<(24+2)); \
     regDPCR |= (8<<(2*4)); \
     regDMA_GPU_CHCR = 0x01000401; \
-    gpu_dma_index ^= 1; \
   }
+//    gpu_dma_index ^= 1;
 
 
 static boolean psxgpu_check_video_mode(struct graphics_data *graphics,
@@ -185,7 +187,7 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
   uint32_t cmd_fgrect_0;
   uint32_t cmd_fgrect_2;
 
-  //printf("PSX: Render graph\n");
+  //iprintf("PSX: Render graph\n");
 
   GFULLSTART();
 
@@ -289,7 +291,7 @@ static void psxgpu_remap_char_range(struct graphics_data *graphics,
 
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO: DMA it (sums up the whole renderer really)
-  printf("PSX: Remap charsets\n");
+  iprintf("PSX: Remap charsets\n");
   for(i = first; i < first+count; i++)
   {
     x = (i&31)*2 + 768;
@@ -344,7 +346,7 @@ static void psxgpu_remap_char(struct graphics_data *graphics,
 {
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO!
-  printf("PSX: Remap char %04X\n", chr);
+  iprintf("PSX: Remap char %04X\n", chr);
 }
 
 static void psxgpu_remap_charbyte(struct graphics_data *graphics,
@@ -352,7 +354,7 @@ static void psxgpu_remap_charbyte(struct graphics_data *graphics,
 {
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO!
-  printf("PSX: Remap char %04X byte %02X\n", chr, byte);
+  iprintf("PSX: Remap char %04X byte %02X\n", chr, byte);
 }
 
 void render_psx_register(struct renderer *renderer)
