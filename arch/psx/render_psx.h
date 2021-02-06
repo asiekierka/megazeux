@@ -2,7 +2,7 @@
 #define __RENDER_PSX_H
 #include <stdint.h>
 
-#include "graphics.h"
+#include "../../src/graphics.h"
 
 #define PSX_PALETTE_FLAG_DIRTY 0x01
 struct psx_palette_entry {

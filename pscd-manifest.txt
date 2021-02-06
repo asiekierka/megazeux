@@ -1,16 +1,16 @@
 bin=mzxrun.bin
 cue=mzxrun.cue
-lic=isolicence.usa
+lic=isolicence.pal
 
 dat=./a/default.chr
 dat=./a/edit.chr
 dat=./a/smzx.pal
 
-dat=./CATACOMB.MZX
+#dat=./CATACOMB.MZX
 dat=./CAVERNS.MZX
-dat=./CHRONOS.MZX
+#dat=./CHRONOS.MZX
 #dat=./config.txt
-dat=./FOREST.MZX
+#dat=./FOREST.MZX
 dat=./mzxrun.exe
 #dat=./pad.cfg
 dat=./system.cnf

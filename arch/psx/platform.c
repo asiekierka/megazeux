@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-#include "platform.h"
-#include "event.h"
+#include "../../src/platform.h"
+#include "../../src/event.h"
 
 #ifdef CONFIG_AUDIO
-#include "audio/audio.h"
+#include "../../src/audio/audio.h"
 #endif
 
 #include <sys/time.h>
@@ -56,7 +56,7 @@ Uint32 get_ticks(void)
   return (Uint32)(tv.tv_sec * 1000 + tv.tv_usec / 1000);
 }
 
-bool platform_init(void)
+boolean platform_init(void)
 {
   struct psx_dirent *dfollow;
   struct psx_dirent dfollow_buf;
@@ -93,7 +93,7 @@ void initialize_joysticks(void)
   // stub
 }
 
-bool __update_event_status(void)
+boolean __update_event_status(void)
 {
   // stub
   return false;
@@ -106,7 +106,7 @@ void real_warp_mouse(int x, int y)
   // What's worse, the mouse, or the G-Con?
 }
 
-void __wait_event(int timeout)
+void __wait_event(void)
 {
   // stub
 }

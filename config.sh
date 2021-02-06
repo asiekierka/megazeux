@@ -667,6 +667,9 @@ fi
 if [ "$PLATFORM" = "psx" ]; then
 	echo "Disabling SDL (PSX)."
 	SDL="false"
+
+	echo "Force-disabling stack protector on PSX."
+	STACK_PROTECTOR="false"
 fi
 
 #
@@ -844,8 +847,11 @@ if [ "$PLATFORM" = "psx" ]; then
 	echo "Force disabling software renderer on PSX."
 	SOFTWARE="false"
 
-	#echo "Force-enabling GP2X 320x240 renderer."
-	#GP2X="true"
+	echo "Force-disabling hash tables on NDS."
+	COUNTER_HASH="false"
+
+	echo "Force-disabling layer rendering on NDS."
+	LAYER_RENDERING="false"
 
 	echo "TEMPORARY: Force-disabling Modplug audio."
 	MODPLUG="false"
@@ -855,9 +861,6 @@ if [ "$PLATFORM" = "psx" ]; then
 
 	echo "TEMPORARY: Force-disabling vorbis."
 	VORBIS="false"
-
-	echo "TEMPORARY: Force-disabling libpng."
-	LIBPNG="false"
 
 	echo "TEMPORARY: Force-disabling all audio."
 	AUDIO="false"

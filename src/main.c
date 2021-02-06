@@ -202,13 +202,14 @@ __libspec int main(int argc, char *argv[])
 #endif
 
   // argc may be 0 on e.g. some Wii homebrew loaders.
-  if(argc == 0 || 1)
+#ifndef CONFIG_PSX
+  if(argc == 0)
+#endif
   {
     argv = _backup_argv;
     argc = 1;
   }
 
-  // FIXME: TEMPORARILY DISABLED FOR PSX --GM
   if(mzx_res_init(argv[0], is_editor()))
     goto err_free_res;
 
@@ -226,7 +227,8 @@ __libspec int main(int argc, char *argv[])
 
   default_config();
   default_editor_config();
-  set_config_from_file(SYSTEM_CNF, mzx_res_get_by_id(CONFIG_TXT));
+  // FIXME PSX
+  // set_config_from_file(SYSTEM_CNF, mzx_res_get_by_id(CONFIG_TXT));
   set_config_from_command_line(&argc, argv);
   conf = get_config();
 

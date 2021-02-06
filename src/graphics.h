@@ -57,7 +57,7 @@ struct char_element
  * The Nintendo DS is a bit of a special case in that we support it despite it
  * not currently handling either the protected charset or the protected palette.
  */
-#if defined(CONFIG_NDS)
+#if defined(CONFIG_NDS) || defined(CONFIG_PSX)
 #define NUM_CHARSETS 2
 #endif
 

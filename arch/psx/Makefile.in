@@ -7,7 +7,7 @@
 #
 #
 #
-CROSSPREFIX := arch/psx/defang mipsel-elf-
+CROSSPREFIX := mipsel-elf-
 CC      := $(CROSSPREFIX)gcc
 CXX     := $(CROSSPREFIX)g++
 AR      := $(CROSSPREFIX)ar
@@ -18,12 +18,12 @@ STRIP   := $(CROSSPREFIX)strip
 # Override library paths.
 #
 
-EXTRA_INCLUDES = -Iarch/psx/
+EXTRA_INCLUDES += -Iarch/psx
 EXTRA_LIBS = -lc
 
-MACHDEP = -msoft-float -EL -march=r3000
+MACHDEP = -msoft-float -EL -march=r3000 -L/opt/candyk/arch/mipsel-elf/mipsel-elf/lib
 
-ARCH_CFLAGS   += ${EXTRA_INCLUDES} ${MACHDEP}
+ARCH_CFLAGS   += ${EXTRA_INCLUDES} ${MACHDEP} -Os
 ARCH_CXXFLAGS += ${ARCH_CFLAGS}
 ARCH_LDFLAGS  += ${EXTRA_LIBS} ${MACHDEP} -Wl,-Ttext-segment=0x80010000
 

@@ -64,9 +64,9 @@ struct mzx_resource
  */
 static struct mzx_resource mzx_res[] =
 {
-#define ASSETS "assets/"
+#define ASSETS "a/"
   { "(binpath)",                        NULL, false, true },
-  { CONFFILE,                           NULL, false, false },
+  { CONFFILE,                           NULL, false, true }, // FIXME PSX
   { ASSETS "default.chr",               NULL, false, false },
   { ASSETS "edit.chr",                  NULL, false, false },
   { ASSETS "smzx.pal",                  NULL, false, false },

@@ -43,6 +43,10 @@ __M_BEGIN_DECLS
 #define MAX_JOYSTICKS           1
 #define MAX_JOYSTICK_AXES       4
 #define MAX_JOYSTICK_BUTTONS    16
+#elif defined(CONFIG_PSX)
+#define MAX_JOYSTICKS           4
+#define MAX_JOYSTICK_AXES       4
+#define MAX_JOYSTICK_BUTTONS    16
 #else
 #define MAX_JOYSTICKS           16
 #define MAX_JOYSTICK_AXES       16
