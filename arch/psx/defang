@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Wrapper script to defang the build process.
+# Basically, we need to remove include dirs forced into the compiler.
+
+NEW_ARGS=""
+while [ "x$1" != "x" -o "x$2" != "x" ] ; do
+	#echo "ARG: \"$1\""
+	if [ "x$1" = "x-I" -a "x$2" = "x/usr/include/" ] ; then
+		shift 2
+	elif [ "x$1" = "x-I" -a "x$2" = "x/usr/include" ] ; then
+		shift 2
+	elif [ "x$1" = "x-I/usr/include/" ] ; then
+		shift 1
+	elif [ "x$1" = "x-I/usr/include" ] ; then
+		shift 1
+	else
+		NEW_ARGS="${NEW_ARGS} $1"
+		shift 1
+	fi
+done
+
+#echo "FIXED: ${NEW_ARGS}"
+${NEW_ARGS}
+

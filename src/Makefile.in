@@ -199,6 +199,13 @@ ifeq (${BUILD_PSP},1)
 core_cobjs += arch/psp/platform.o
 endif
 
+ifeq (${BUILD_PSX},1)
+core_cobjs += arch/psx/newlib_wrappers.o
+core_cobjs += arch/psx/platform.o
+core_cobjs += arch/psx/platform_asm.o
+core_cobjs += arch/psx/render_psx.o
+endif
+
 #
 # Other modular stuff
 #
@@ -361,7 +368,7 @@ endif
 
 else
 
-ifeq ($(or ${BUILD_WII},${BUILD_NDS},${BUILD_3DS}),)
+ifeq ($(or ${BUILD_WII},${BUILD_NDS},${BUILD_3DS},${BUILD_PSX}),)
 
 core_cobjs += ${core_obj}/platform_dummy.o
 

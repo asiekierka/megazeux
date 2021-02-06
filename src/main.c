@@ -202,12 +202,13 @@ __libspec int main(int argc, char *argv[])
 #endif
 
   // argc may be 0 on e.g. some Wii homebrew loaders.
-  if(argc == 0)
+  if(argc == 0 || 1)
   {
     argv = _backup_argv;
     argc = 1;
   }
 
+  // FIXME: TEMPORARILY DISABLED FOR PSX --GM
   if(mzx_res_init(argv[0], is_editor()))
     goto err_free_res;
 

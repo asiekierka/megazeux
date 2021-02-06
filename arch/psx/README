@@ -1,0 +1,22 @@
+PREPARATION
+
+you'll need a MIPS compiler w/ support for a little-endian R3000 (MIPS I architecture)
+it will also need to be built w/ newlib
+
+recommended tuple to use: `mipsel-elf`
+
+by all means feel free to patch out the libstdc++ check where it complains and dies because it doesn't recognise the tuple
+
+CONFIGURING
+
+look at `CONFIG.PSX` for your `config.sh` line
+
+BUILDING
+
+uhhhhh
+
+PACKAGING THE BUILD
+
+uuuuuuuuuhhhhhhhhhhhhhhh
+
+--gm

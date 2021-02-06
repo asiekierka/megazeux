@@ -1,0 +1,6 @@
+#!/bin/sh
+nice make -j8 && \
+~/appage/ps/candyk/bin/elf2psx -n mzxrun mzxrun.exe && \
+~/appage/ps/candyk/bin/pscd-new pscd-manifest.txt && \
+mednafen mzxrun.cue
+

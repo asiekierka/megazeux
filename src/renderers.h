@@ -59,6 +59,9 @@ void render_nds_register(struct renderer *renderer);
 #if defined(CONFIG_3DS)
 void render_ctr_register(struct renderer *renderer);
 #endif
+#if defined(CONFIG_PSX)
+void render_psx_register(struct renderer *renderer);
+#endif
 #if defined(CONFIG_WII)
 #if defined(CONFIG_RENDER_GX)
 void render_gx_register(struct renderer *renderer);

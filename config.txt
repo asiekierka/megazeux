@@ -788,4 +788,5 @@
 
 # update_auto_check = silent
 
-include pad.config
+#include pad.config
+include pad.cfg

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash --
+
+#./config.sh --platform psx --optimize-size \
+#            --disable-editor --disable-helpsys --disable-utils \
+#            --disable-libvorbis \
+#            --disable-libpng --enable-release --enable-meter
+
+./config.sh --platform psx --enable-release --optimize-size --disable-editor --disable-helpsys --disable-utils --disable-libpng --disable-uthash --disable-check-alloc --disable-libsdl2
+
+# reference:
+#./config.sh --platform psx --prefix $DEVKITARM --optimize-size \
+#            --disable-editor --disable-helpsys --disable-utils \
+#            --disable-libpng --enable-release --enable-meter

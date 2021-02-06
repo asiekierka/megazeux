@@ -1,0 +1,57 @@
+#
+# PlayStation 1 Makefile
+#
+
+#.PHONY: package clean
+
+#
+#
+#
+CROSSPREFIX := arch/psx/defang mipsel-elf-
+CC      := $(CROSSPREFIX)gcc
+CXX     := $(CROSSPREFIX)g++
+AR      := $(CROSSPREFIX)ar
+OBJCOPY := $(CROSSPREFIX)objcopy
+STRIP   := $(CROSSPREFIX)strip
+
+#
+# Override library paths.
+#
+
+EXTRA_INCLUDES = -Iarch/psx/
+EXTRA_LIBS = -lc
+
+MACHDEP = -msoft-float -EL -march=r3000
+
+ARCH_CFLAGS   += ${EXTRA_INCLUDES} ${MACHDEP}
+ARCH_CXXFLAGS += ${ARCH_CFLAGS}
+ARCH_LDFLAGS  += ${EXTRA_LIBS} ${MACHDEP} -Wl,-Ttext-segment=0x80010000
+
+#
+# Vile hack, remove me ASAP
+#
+arch/psx/%.o: arch/psx/%.c
+	$(if ${V},,@echo "  CC      " $<)
+	${CC} -MD ${core_cflags} ${core_flags} -Wno-unused-macros -c $< -o $@
+arch/psx/%.o: arch/psx/%.S
+	$(if ${V},,@echo "  AS      " $<)
+	${CC} -MD ${core_cflags} ${core_flags} -Wno-unused-macros -c $< -o $@
+
+#package: mzx
+#	${MAKE} -C arch/nds TARGET=${mzxrun}
+#	ndstool -c ${mzxrun}.nds -7 arch/nds/${mzxrun}.arm7.elf -9 ${mzxrun} -b arch/nds/icon.bmp "MegaZeux ${VERSION}"
+
+#clean:
+	#@${MAKE} -C arch/nds TARGET=${mzxrun} clean
+	#@rm -f ${mzxrun}.nds arch/nds/*.{d,o}
+
+#
+# We're only interested in our packaged binary; remove the ELF intermediaries
+#
+#build := build/${SUBPLATFORM}/games/megazeux
+#build: package ${build}
+	#${CP} arch/nds/pad.config ${build}
+	#${CP} ${mzxrun}.nds ${build}
+	#${RM} ${build}/${mzxrun} ${build}/${mzxrun}.debug
+
+include arch/zip.inc
