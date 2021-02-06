@@ -92,6 +92,9 @@ typedef unsigned char boolean;
 #endif
 
 #ifdef CONFIG_PSX
+#undef MAX_PATH
+#define MAX_PATH 256
+
 // Use iprintf/iscanf on PSX to save ~50 KB
 #define sscanf siscanf
 #define printf iprintf

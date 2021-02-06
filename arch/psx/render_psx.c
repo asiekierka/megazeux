@@ -234,7 +234,7 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
       cobg = &pal[cp->bg_color];
       cofg = &pal[cp->fg_color];
       cmd_bgrect_0 = ((0x60<<24)|*(uint32_t *)cobg) ^ psx_flip_mask;
-      cmd_fgrect_0 = (((0x64<<24)|*(uint32_t *)cofg) ^ psx_flip_mask);
+      cmd_fgrect_0 = (((0x64<<24)|(((*(uint32_t *)cofg)>>1)&0x7F7F7F)) ^ psx_flip_mask);
 
       // Foreground rectangle texcoords
       cmd_fgrect_2 = ((0<<22)
