@@ -20,6 +20,7 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
 
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -61,11 +62,13 @@
 
 #ifdef CONFIG_LOADSAVE_METER
 
-static Uint32 last_ticks;
+#include "platform.h"
+
+static uint32_t last_ticks;
 
 void meter_update_screen(int *curr, int target)
 {
-  Uint32 ticks = get_ticks();
+  uint32_t ticks = get_ticks();
 
   (*curr)++;
   meter_interior(*curr, target);
@@ -535,10 +538,10 @@ static inline enum val_result validate_world_info(struct world *mzx_world,
   return VAL_SUCCESS;
 
 err_free:
-  fprintf(stderr,
+  fprintf(mzxerr,
    "load_world_info: expected ID %xh not found (found %xh, last %xh)\n",
    missing_ident, ident, last_ident);
-  fflush(stderr);
+  fflush(mzxerr);
 
   free(buffer);
   mzx_world->raw_world_info = NULL;
@@ -1460,7 +1463,7 @@ err_free:
 static inline int save_world_counters(struct world *mzx_world,
  struct zip_archive *zp, const char *name)
 {
-  Uint8 buffer[8];
+  uint8_t buffer[8];
   struct memfile mf;
   struct counter_list *counter_list = &(mzx_world->counter_list);
   struct counter *src_counter;
@@ -1494,7 +1497,7 @@ static inline int save_world_counters(struct world *mzx_world,
 static inline int load_world_counters(struct world *mzx_world,
  struct zip_archive *zp)
 {
-  Uint8 buffer[8];
+  uint8_t buffer[8];
   struct memfile mf;
   char name_buffer[ROBOT_MAX_TR];
   size_t name_length;
@@ -1574,7 +1577,7 @@ static inline int load_world_counters(struct world *mzx_world,
 static inline int save_world_strings(struct world *mzx_world,
  struct zip_archive *zp, const char *name)
 {
-  Uint8 buffer[8];
+  uint8_t buffer[8];
   struct memfile mf;
   struct string_list *string_list = &(mzx_world->string_list);
   struct string *src_string;
@@ -1611,7 +1614,7 @@ static inline int save_world_strings(struct world *mzx_world,
 static inline int load_world_strings(struct world *mzx_world,
  struct zip_archive *zp)
 {
-  Uint8 buffer[8];
+  uint8_t buffer[8];
   struct memfile mf;
   struct string_list *string_list = &(mzx_world->string_list);
   struct string *src_string;
@@ -2012,6 +2015,7 @@ static int load_world_zip(struct world *mzx_world, struct zip_archive *zp,
 
   int meter_curr = 0;
   int meter_target = 2;
+  boolean loaded_temp_board = false;
 
   meter_initial_draw(meter_curr, meter_target, "Loading...");
 
@@ -2114,6 +2118,7 @@ static int load_world_zip(struct world *mzx_world, struct zip_archive *zp,
            load_board_allocate(mzx_world, zp, savegame, file_version, board_id);
 
           meter_update_screen(&meter_curr, meter_target);
+          loaded_temp_board = true;
         }
         break;
       }
@@ -2138,8 +2143,8 @@ static int load_world_zip(struct world *mzx_world, struct zip_archive *zp,
     if(err != ZIP_SUCCESS)
     {
       zip_skip_file(zp);
-      fprintf(stderr, "ERROR - Read error @ file ID %u\n", file_id);
-      fflush(stderr);
+      fprintf(mzxerr, "ERROR - Read error @ file ID %u\n", file_id);
+      fflush(mzxerr);
     }
   }
 
@@ -2165,6 +2170,11 @@ static int load_world_zip(struct world *mzx_world, struct zip_archive *zp,
 
     error_message(E_WORLD_BOARD_MISSING, 0, NULL);
   }
+
+  // Check for missing temporary board; if the temporary board is missing,
+  // clear the temporary flag so the temporary board will be regenerated.
+  if(mzx_world->temporary_board && !loaded_temp_board)
+    mzx_world->temporary_board = false;
 
   meter_update_screen(&meter_curr, meter_target);
 
@@ -2262,10 +2272,10 @@ int save_world(struct world *mzx_world, const char *file, boolean savegame,
 
   else
   {
-    fprintf(stderr,
+    fprintf(mzxerr,
      "ERROR: Attempted to save incompatible world version %d.%d! Aborting!\n",
      (world_version >> 8) & 0xFF, world_version & 0xFF);
-    fflush(stderr);
+    fflush(mzxerr);
 
     return -1;
   }
@@ -3048,7 +3058,7 @@ boolean reload_world(struct world *mzx_world, const char *file, boolean *faded)
   // Always switch back to regular mode before loading the world,
   // because we want the world's intrinsic palette to be applied.
   set_screen_mode(0);
-  smzx_palette_loaded(0);
+  smzx_palette_loaded(false);
   set_palette_intensity(100);
 
   default_sprite_data(mzx_world);
@@ -3145,7 +3155,7 @@ void clear_world(struct world *mzx_world)
   for(i = 0; i < num_boards; i++)
   {
     if(mzx_world->current_board_id != i)
-      retrieve_board_from_extram(board_list[i]);
+      clear_board_from_extram(board_list[i]);
     clear_board(board_list[i]);
   }
   free(board_list);

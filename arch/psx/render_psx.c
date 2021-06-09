@@ -64,12 +64,6 @@ static boolean gpu_dma_is_seeded[2];
 //    gpu_dma_index ^= 1;
 
 
-static boolean psxgpu_check_video_mode(struct graphics_data *graphics,
- int width, int height, int depth, boolean fullscreen, boolean resize)
-{
-  return true;
-}
-
 static boolean psxgpu_set_video_mode(struct graphics_data *graphics,
  int width, int height, int depth, boolean fullscreen, boolean resize)
 {
@@ -156,10 +150,10 @@ static boolean psxgpu_init_video(struct graphics_data *graphics,
 }
 
 static void psxgpu_update_colors(struct graphics_data *graphics,
- struct rgb_color *palette, Uint32 count)
+ struct rgb_color *palette, uint32_t count)
 {
   struct psx_render_data *render_data = graphics->render_data;
-  Uint32 i;
+  uint32_t i;
 
   for(i = 0; i < count; i++)
   {
@@ -258,14 +252,14 @@ static void psxgpu_render_graph(struct graphics_data *graphics)
 }
 
 static void psxgpu_render_cursor(struct graphics_data *graphics,
- Uint32 x, Uint32 y, Uint16 color, Uint8 lines, Uint8 offset)
+ uint32_t x, uint32_t y, uint16_t color, uint8_t lines, uint8_t offset)
 {
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO!
 }
 
 static void psxgpu_render_mouse(struct graphics_data *graphics,
- Uint32 x, Uint32 y, Uint8 w, Uint8 h)
+ uint32_t x, uint32_t y, uint8_t w, uint8_t h)
 {
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO!
@@ -279,7 +273,7 @@ static void psxgpu_sync_screen(struct graphics_data *graphics)
 }
 
 static void psxgpu_remap_char_range(struct graphics_data *graphics,
- Uint16 first, Uint16 count)
+ uint16_t first, uint16_t count)
 {
   int i;
   int x, y, timeout;
@@ -342,7 +336,7 @@ static void psxgpu_remap_char_range(struct graphics_data *graphics,
 }
 
 static void psxgpu_remap_char(struct graphics_data *graphics,
- Uint16 chr)
+ uint16_t chr)
 {
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO!
@@ -350,7 +344,7 @@ static void psxgpu_remap_char(struct graphics_data *graphics,
 }
 
 static void psxgpu_remap_charbyte(struct graphics_data *graphics,
- Uint16 chr, Uint8 byte)
+ uint16_t chr, uint8_t byte)
 {
   //struct psx_render_data *render_data = graphics->render_data;
   // TODO!
@@ -361,7 +355,6 @@ void render_psx_register(struct renderer *renderer)
 {
   memset(renderer, 0, sizeof(struct renderer));
   renderer->init_video = psxgpu_init_video;
-  renderer->check_video_mode = psxgpu_check_video_mode;
   renderer->set_video_mode = psxgpu_set_video_mode;
   renderer->update_colors = psxgpu_update_colors;
   renderer->resize_screen = resize_screen_standard;

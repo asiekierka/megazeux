@@ -89,6 +89,14 @@ typedef unsigned char boolean;
 
 #ifdef CONFIG_NDS
 #include <nds.h>
+
+// Use iprintf/iscanf on NDS to save ~50 KB
+#define sscanf siscanf
+#define printf iprintf
+#define fprintf fiprintf
+#define sprintf siprintf
+#define snprintf sniprintf
+#define vsnprintf vsniprintf
 #endif
 
 #ifdef CONFIG_PSX
@@ -106,8 +114,10 @@ typedef unsigned char boolean;
 
 #ifdef CONFIG_WII
 #define BOOL _BOOL
+#include <gcbool.h>
 #include <gctypes.h>
 #undef BOOL
+#undef FIXED
 #endif
 
 #ifdef CONFIG_EDITOR

@@ -159,7 +159,7 @@ core_cobjs += arch/nds/protected_palette.bin.o
 core_cobjs += arch/nds/audio.o
 core_cobjs += arch/nds/platform.o arch/nds/event.o
 core_cobjs += arch/nds/render.o arch/nds/evq.o
-ifneq (${BUILD_DEBYTECODE},1)
+ifeq (${BUILD_EXTRAM},1)
 core_cobjs += arch/nds/dlmalloc.o
 core_cobjs += arch/nds/ram.o arch/nds/extmem.o
 endif
@@ -245,6 +245,7 @@ endif
 # Shader renderers (OGL>=2, OGLES=2)
 ifeq (${BUILD_RENDER_GL_PROGRAM},1)
 core_cobjs += ${core_obj}/render_glsl.o
+render_layer_software = 1
 endif
 
 #
@@ -334,18 +335,21 @@ audio_cobjs := \
  ${audio_obj}/audio_pcs.o      \
  ${audio_obj}/audio_wav.o      \
  ${audio_obj}/ext.o            \
- ${audio_obj}/sampled_stream.o \
  ${audio_obj}/sfx.o
 
+audio_cxxobjs := \
+ ${audio_obj}/sampled_stream.o
+
 ifneq (${VORBIS},)
+core_flags += ${VORBIS_CFLAGS}
+core_ldflags := ${VORBIS_LDFLAGS} ${core_ldflags}
 audio_cobjs += \
  ${audio_obj}/audio_vorbis.o
 endif
-
-core_flags += ${VORBIS_CFLAGS}
-core_ldflags := ${VORBIS_LDFLAGS} ${core_ldflags}
 endif
+
 core_cobjs += ${audio_cobjs}
+core_cxxobjs += ${audio_cxxobjs}
 else
 # The editor needs this for sfx_strs...
 ifeq (${BUILD_EDITOR},1)

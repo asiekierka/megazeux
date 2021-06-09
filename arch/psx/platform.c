@@ -38,6 +38,12 @@
 #undef fopen
 #endif
 
+boolean __peek_exit_input(void)
+{
+  /* FIXME stub */
+  return false;
+}
+
 void delay(Uint32 ms)
 {
   usleep(1000 * ms);
@@ -99,7 +105,7 @@ boolean __update_event_status(void)
   return false;
 }
 
-void real_warp_mouse(int x, int y)
+void __warp_mouse(int x, int y)
 {
   // stub
   // Supporting the PS1 mouse might be fun...

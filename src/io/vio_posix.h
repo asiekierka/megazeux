@@ -40,13 +40,13 @@ static inline FILE *platform_fopen_unsafe(const char *path, const char *mode)
 
 static inline FILE *platform_tmpfile(void)
 {
-#ifdef CONFIG_PSX
+#if defined(CONFIG_PSX) || defined(CONFIG_NDS)
   // tmpfile() pulls in the non-integer-only variant of sprintf from newlib,
   // while the only functions currently using tmpfile() have a fallback.
   return NULL;
 #else
   return tmpfile();
-#endif /* CONFIG_PSX */
+#endif /* CONFIG_PSX || CONFIG_NDS */
 }
 
 static inline char *platform_getcwd(char *buf, size_t size)

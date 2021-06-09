@@ -32,6 +32,7 @@ usage() {
 	echo "  3ds            Experimental 3DS port"
 	echo "  switch         Experimental Switch port"
 	echo "  wii            Experimental Wii port"
+	echo "  wiiu           Experimental Wii U port"
 	echo "  amiga          Experimental AmigaOS 4 port"
 	echo "  android        Experimental Android port"
 	echo "  pandora        Experimental Pandora port"
@@ -492,18 +493,28 @@ elif [ "$PLATFORM" = "unix" -o "$PLATFORM" = "unix-devel" ]; then
 	elif [ "`echo $MACH | sed 's,i.86,x86,'`" = "x86" ]; then
 		ARCHNAME=x86
 		#RAWLIBDIR=lib
+	elif [ "$MACH" = "aarch64" -o "$MACH" = "arm64" ]; then
+		ARCHNAME=aarch64
 	elif [ "`echo $MACH | sed 's,^arm.*,arm,'`" = "arm" ]; then
 		ARCHNAME=arm
 		#RAWLIBDIR=lib
 	elif [ "$MACH" = "ppc" ]; then
 		ARCHNAME=ppc
 		#RAWLIBDIR=lib
+	elif [ "$MACH" = "ppc64" ]; then
+		ARCHNAME=ppc64
+	elif [ "$MACH" = "mips" ]; then
+		ARCHNAME=mips
+	elif [ "$MACH" = "mips64" ]; then
+		ARCHNAME=mips64
 	elif [ "$MACH" = "m68k" ]; then
 		ARCHNAME=m68k
 	elif [ "$MACH" = "alpha" ]; then
 		ARCHNAME=alpha
-	elif [ "$MACH" = "hppa" ]; then
+	elif [ "$MACH" = "hppa" -o "$MACH" = "parisc" ]; then
 		ARCHNAME=hppa
+	elif [ "$MACH" = "sh4" ]; then
+		ARCHNAME=sh4
 	elif [ "$MACH" = "sparc" ]; then
 		ARCHNAME=sparc
 	elif [ "$MACH" = "sparc64" ]; then
@@ -606,6 +617,12 @@ elif [ "$PLATFORM" = "3ds" ]; then
 	echo "#define SHAREDIR \"$SHAREDIR\""  >> src/config.h
 elif [ "$PLATFORM" = "wii" ]; then
 	SHAREDIR=/apps/megazeux
+	GAMESDIR=$SHAREDIR
+	BINDIR=$SHAREDIR
+	echo "#define CONFFILE \"config.txt\"" >> src/config.h
+	echo "#define SHAREDIR \"$SHAREDIR\""  >> src/config.h
+elif [ "$PLATFORM" = "wiiu" ]; then
+	SHAREDIR=fs:/vol/external01/wiiu/apps/megazeux
 	GAMESDIR=$SHAREDIR
 	BINDIR=$SHAREDIR
 	echo "#define CONFFILE \"config.txt\"" >> src/config.h
@@ -806,6 +823,22 @@ if [ "$PLATFORM" = "3ds" ]; then
 fi
 
 #
+# If the Wii U arch is enabled, some code has to be compile time
+# enabled too.
+#
+if [ "$PLATFORM" = "wiiu" ]; then
+	echo "Enabling Wii U-specific hacks."
+	echo "#define CONFIG_WIIU" >> src/config.h
+	echo "BUILD_WIIU=1" >> platform.inc
+
+	echo "Disabling utils on Wii U (silly)."
+	UTILS="false"
+
+	# Doesn't seem to be fully populated on the Wii U.
+	GAMECONTROLLERDB="false"
+fi
+
+#
 # If the Switch arch is enabled, some code has to be compile time
 # enabled too.
 #
@@ -904,8 +937,8 @@ if [ "$PLATFORM" = "psp" \
   -o "$PLATFORM" = "ps1" \
   -o "$PLATFORM" = "gp2x" \
   -o "$PLATFORM" = "3ds" \
-  -o "$PLATFORM" = "nds" \
-  -o "$PLATFORM" = "wii" ]; then
+  -o "$PLATFORM" = "wiiu" \
+  -o "$PLATFORM" = "nds" -o "$PLATFORM" = "wii" ]; then
   	echo "Force-disabling OpenGL and overlay renderers."
 	GL="false"
 	OVERLAY="false"
@@ -986,6 +1019,7 @@ fi
 #
 if [ "$PLATFORM" = "gp2x" -o "$PLATFORM" = "nds" \
   -o "$PLATFORM" = "3ds"  -o "$PLATFORM" = "switch" \
+  -o "$PLATFORM" = "wiiu" \
   -o "$PLATFORM" = "android" -o "$PLATFORM" = "emscripten" \
   -o "$PLATFORM" = "psx" \
   -o "$PLATFORM" = "psp"  -o "$PLATFORM" = "wii" ]; then
