@@ -131,9 +131,9 @@ static void n64_update_colors(struct graphics_data *graphics,
 #ifdef RENDERER_ACCELERATED
       render_data->palette32[i] = graphics->flat_intensity_palette[i] * 0x10001;
       render_data->palette32_blend[i] = 0xFF
-        | (((palette[i].b & 0xF8) | (palette[i].b >> 8)) << 8)
-        | (((palette[i].g & 0xF8) | (palette[i].g >> 8)) << 16)
-        | (((palette[i].r & 0xF8) | (palette[i].r >> 8)) << 24);
+        | (((palette[i].b & 0xF8) | 7) << 8)
+        | (((palette[i].g & 0xF8) | 7) << 16)
+        | (((palette[i].r & 0xF8) | 7) << 24);
 #endif
     }
   }
@@ -349,7 +349,7 @@ static void n64_render_graph(struct graphics_data *graphics)
   __rdp_ringbuffer_queue( 0xA0400000 | 0x4000 | 0x40 );
   __rdp_ringbuffer_send();
 
-  n64_rdp_set_combine_mode_1(6, 0xF, 1, 7, 1, 7, 0, 7);
+  n64_rdp_set_combine_mode_1(6, 0xF, 0x1F, 6, 1, 7, 0, 7);
 
   n64_draw_fg_accel(graphics, render_data, 0x00);
 
