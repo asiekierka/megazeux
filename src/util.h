@@ -54,8 +54,13 @@ CORE_LIBSPEC extern FILE *mzxerr_h;
 #define mzxout (mzxout_h ? mzxout_h : stdout)
 #define mzxerr (mzxerr_h ? mzxerr_h : stderr)
 #else
+#ifdef CONFIG_N64
+#define mzxout stdout
+#define mzxerr stdout
+#else
 #define mzxout stdout
 #define mzxerr stderr
+#endif
 #endif
 
 enum resource_id

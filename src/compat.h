@@ -226,8 +226,14 @@ __M_BEGIN_DECLS
 
 #include <stdio.h>
 
+#ifdef CONFIG_N64
+static inline FILE *fopen_unsafe_unwrapped(const char *path, const char *mode)
+ { return fopen(path, mode); }
+FILE *fopen_unsafe(const char *path, const char *mode);
+#else
 static inline FILE *fopen_unsafe(const char *path, const char *mode)
  { return fopen(path, mode); }
+#endif
 static inline FILE *check_fopen(const char *path, const char *mode)
  __attribute__((deprecated));
 static inline FILE *check_fopen(const char *path, const char *mode)

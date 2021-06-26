@@ -1,0 +1,46 @@
+#
+# N64 toolchain overrides
+#
+CC       = mips64-elf-gcc
+CXX      = mips64-elf-g++
+AR       = mips64-elf-ar
+OBJCOPY  = mips64-elf-objcopy
+STRIP    = /bin/true
+CHKSUM64 = $(N64_INST)/bin/chksum64
+MKDFS    = $(N64_INST)/bin/mkdfs
+N64TOOL  = $(N64_INST)/bin/n64tool
+
+# Disable rules that require target code to run natively.
+SUPPRESS_HOST_TARGETS ?= 1
+
+ARCH_CFLAGS   += -G0 -march=vr4300 -mtune=vr4300 -I$(N64_INST)/include -I$(N64_INST)/mips64-elf/include -DPATH_MAX=256
+ARCH_CXXFLAGS += ${ARCH_CFLAGS}
+ARCH_LDFLAGS  += -L$(N64_INST)/mips64-elf/lib -L $(N64_INST)/lib -lmikmod -ldragon -lz -lc -lm -ldragonsys -Tn64.ld -Wl,--gc-sections
+N64_FLAGS = -l 8M -h $(N64_INST)/mips64-elf/lib/header -o ${mzxrun}.z64
+
+DEBUG_CFLAGS = -Os
+
+ZLIB_LDFLAGS = 
+MIKMOD_LDFLAGS = 
+
+package: mzx
+	$(OBJCOPY) ${mzxrun} ${mzxrun}.bin -O binary
+	$(N64TOOL) $(N64_FLAGS) -t "MegaZeux" ${mzxrun}.bin -s 1M file.dfs
+	$(CHKSUM64) ${mzxrun}.z64
+#	rm -f ${mzxrun}.bin
+
+clean:
+	@rm -f mzxrun.z64 arch/n64/*.{o,d}
+
+build: package ${build}
+	${CP} mzxrun.z64 ${build}
+	${RM} ${build}/${mzxrun} ${build}/${mzxrun}.debug
+
+#
+# Vile hack, remove me ASAP
+#
+arch/n64/%.o: arch/n64/%.c
+	$(if ${V},,@echo "  CC      " $<)
+	${CC} -MD ${core_cflags} ${core_flags} -c $< -o $@
+
+include arch/zip.inc

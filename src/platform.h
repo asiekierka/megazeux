@@ -58,7 +58,7 @@ int real_main(int argc, char *argv[]);
 #elif defined(_WIN32) /* Fallback, prefer SDL when possible. */
 #include "thread_win32.h"
 #else
-#if defined(CONFIG_NDS)
+#if defined(CONFIG_NDS) || defined(CONFIG_N64)
 #define THREAD_DUMMY_ALLOW_MUTEX
 #endif
 #include "thread_dummy.h"

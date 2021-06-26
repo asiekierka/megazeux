@@ -35,6 +35,7 @@ usage() {
 	echo "  gp2x           Experimental GP2X port"
 	echo "  nds            Experimental NDS port"
 	echo "  nds-blocksds   Experimental NDS (BlocksDS) port"
+	echo "  n64            Experimental N64 port"
 	echo "  3ds            Experimental 3DS port"
 	echo "  switch         Experimental Switch port"
 	echo "  wii            Experimental Wii port"
@@ -782,6 +783,7 @@ echo "LICENSEDIR=$LICENSEDIR" >> platform.inc
 #
 if [ "$PLATFORM" = "nds" ] ||
    [ "$PLATFORM" = "nds-blocksds" ] ||
+   [ "$PLATFORM" = "n64" ] ||
    [ "$PLATFORM" = "djgpp" ] ||
    [ "$PLATFORM" = "dreamcast" ] ||
    [ "$EGL" = "true" ]; then
@@ -903,6 +905,22 @@ if [ "$PLATFORM" = "nds-blocksds" ]; then
 	echo "Enabling BlocksDS-specific hacks."
 	echo "#define CONFIG_NDS_BLOCKSDS" >> src/config.h
 	echo "BUILD_NDS_BLOCKSDS=1" >> platform.inc
+fi
+
+#
+# If the N64 arch is enabled, some code has to be compile time
+# enabled too.
+#
+if [ "$PLATFORM" = "n64" ]; then
+	echo "Enabling N64-specific hacks."
+	echo "#define CONFIG_N64" >> src/config.h
+	echo "BUILD_N64=1" >> platform.inc
+
+	echo "Force-disabling stack protector on N64."
+	STACK_PROTECTOR="false"
+
+	echo "Force-disabling hash tables on N64."
+	COUNTER_HASH="false"
 fi
 
 #
@@ -1098,6 +1116,7 @@ if [ "$PLATFORM" = "psp" ] ||
    [ "$PLATFORM" = "gp2x" ] ||
    [ "$PLATFORM" = "nds" ] ||
    [ "$PLATFORM" = "nds-blocksds" ] ||
+   [ "$PLATFORM" = "n64" ] ||
    [ "$PLATFORM" = "3ds" ] ||
    [ "$PLATFORM" = "wii" ] ||
    [ "$PLATFORM" = "wiiu" ] ||
@@ -1189,6 +1208,7 @@ fi
 if [ "$PLATFORM" = "gp2x" ] ||
    [ "$PLATFORM" = "nds" ] ||
    [ "$PLATFORM" = "nds-blocksds" ] ||
+   [ "$PLATFORM" = "n64" ] ||
    [ "$PLATFORM" = "3ds" ] ||
    [ "$PLATFORM" = "wii" ] ||
    [ "$PLATFORM" = "wiiu" ] ||
@@ -1209,7 +1229,8 @@ fi
 if [ "$EDITOR" = "false" ] ||
    [ "$PLATFORM" = "djgpp" ] ||
    [ "$PLATFORM" = "nds" ] ||
-   [ "$PLATFORM" = "nds-blocksds" ]; then
+   [ "$PLATFORM" = "nds-blocksds" ] ||
+   [ "$PLATFORM" = "n64" ]; then
 	echo "Force-disabling networking (unsupported platform or editor disabled)."
 	NETWORK="false"
 fi
@@ -1489,6 +1510,7 @@ if [ "$ICON" = "true" ]; then
 	   [ "$PLATFORM" = "psp" ] ||
 	   [ "$PLATFORM" = "nds" ] ||
 	   [ "$PLATFORM" = "nds-blocksds" ] ||
+	   [ "$PLATFORM" = "n64" ] ||
 	   [ "$PLATFORM" = "wii" ] ||
 	   [ "$PLATFORM" = "djgpp" ] ||
 	   [ "$PLATFORM" = "dreamcast" ]; then
