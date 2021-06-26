@@ -1,0 +1,10 @@
+#!/bin/sh
+
+[[ -z $N64_INST ]] && { echo "\$N64_INST is unset. Aborting"; exit 1; }
+
+./config.sh --platform n64 --prefix $N64_INST --optimize-size \
+            --disable-editor --disable-helpsys --disable-utils \
+            --enable-meter --disable-vorbis --enable-release \
+            --disable-libpng --enable-extram --disable-screenshots \
+            --disable-rad \
+            "$@"

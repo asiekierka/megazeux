@@ -90,16 +90,16 @@ typedef unsigned char boolean;
 
 #ifdef CONFIG_NDS
 #include <nds.h>
+#endif
 
-#ifndef CONFIG_NDS_BLOCKSDS
-// Use iprintf/iscanf on NDS to save ~50 KB
+// Use iprintf/iscanf on NDS/N64 to save ~50 KB
+#if (defined(CONFIG_NDS) || defined(CONFIG_N64)) && !defined(CONFIG_NDS_BLOCKSDS)
 #define sscanf siscanf
 #define printf iprintf
 #define fprintf fiprintf
 #define sprintf siprintf
 #define snprintf sniprintf
 #define vsnprintf vsniprintf
-#endif
 #endif
 
 #ifdef CONFIG_WII
@@ -230,8 +230,14 @@ __M_BEGIN_DECLS
 
 #include <stdio.h>
 
+#ifdef CONFIG_N64
+static inline FILE *fopen_unsafe_unwrapped(const char *path, const char *mode)
+ { return fopen(path, mode); }
+FILE *fopen_unsafe(const char *path, const char *mode);
+#else
 static inline FILE *fopen_unsafe(const char *path, const char *mode)
  { return fopen(path, mode); }
+#endif
 static inline FILE *check_fopen(const char *path, const char *mode)
  __attribute__((deprecated));
 static inline FILE *check_fopen(const char *path, const char *mode)

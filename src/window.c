@@ -70,7 +70,7 @@
 #include <sys/iosupport.h>
 #endif
 
-#ifdef CONFIG_NDS
+#if defined(CONFIG_NDS) || defined(CONFIG_N64)
 // Should be sufficient with a disabled editor.
 #define NUM_SAVSCR 3
 #else

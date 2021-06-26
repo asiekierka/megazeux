@@ -36,6 +36,11 @@
 #define SLOW_FILESYSTEM_HACKS
 #endif
 
+#ifdef CONFIG_N64
+#include "vio.h"
+#define stat(a, b) vstat((a), (b))
+#endif
+
 /* As of Windows 7, short filenames can be disabled per-volume.
  * In Windows 8+ they are disabled by default except on the boot volume.
  * Github CI Windows runners now disable them too, so case5 must be enabled.

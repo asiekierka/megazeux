@@ -34,7 +34,11 @@
 #ifdef __WIN32__
 #include "vio_win32.h"
 #else
+#ifdef CONFIG_N64
+#include "../../arch/n64/vio_n64.h"
+#else
 #include "vio_posix.h"
+#endif
 #endif
 
 #ifndef VFILE_SMALL_BUFFER_SIZE

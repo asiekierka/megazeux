@@ -133,6 +133,10 @@ core_cobjs := \
   ${io_obj}/zip.o                 \
   ${io_obj}/zip_stream.o
 
+ifneq (${BUILD_N64}, 1)
+core_cobjs +=  ${io_obj}/dir.o
+endif
+
 #
 # Lists mandatory C++ language sources (mangled to object names) required
 # to build the main binary. Currently there are only optional sources.
@@ -153,6 +157,13 @@ ifeq (${BUILD_EXTRAM},1)
 core_cobjs += arch/nds/dlmalloc.o
 core_cobjs += arch/nds/ram.o arch/nds/extmem.o
 endif
+endif
+
+ifeq (${BUILD_N64},1)
+core_cobjs += arch/n64/platform.o arch/n64/event.o
+core_cobjs += arch/n64/dir.o
+core_cobjs += arch/n64/render.o
+core_cobjs += arch/n64/audio.o
 endif
 
 ifeq (${BUILD_3DS},1)
@@ -286,6 +297,11 @@ ifeq (${BUILD_EDITOR},1)
 render_layer_software = 1
 endif
 
+# N64 requires the software layer renderer.
+ifeq (${BUILD_N64},1)
+render_layer_software = 1
+endif
+
 # Software layer renderer
 # This one tends to take forever for many builds. Prefix it to
 # the list so hopefully it starts sooner during parallel builds.
@@ -385,7 +401,7 @@ endif
 
 else
 
-ifeq ($(or ${BUILD_WII},${BUILD_NDS},${BUILD_3DS},${BUILD_DJGPP},${BUILD_DREAMCAST}),)
+ifeq ($(or ${BUILD_WII},${BUILD_NDS},${BUILD_3DS},${BUILD_N64},${BUILD_DJGPP},${BUILD_DREAMCAST}),)
 
 core_cobjs += ${core_obj}/platform_dummy.o
 

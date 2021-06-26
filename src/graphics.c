@@ -109,6 +109,9 @@ static const struct renderer_data renderers[] =
   { "dreamcast", render_dc_register },
   { "dreamcast_fb", render_dc_fb_register },
 #endif
+#if defined(CONFIG_N64)
+  { "n64", render_n64_register },
+#endif
   { NULL, NULL }
 };
 

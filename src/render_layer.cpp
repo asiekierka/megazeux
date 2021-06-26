@@ -46,6 +46,11 @@
 #define SKIP_8BPP
 #endif
 
+#if defined(CONFIG_N64)
+#define SKIP_8BPP
+#define SKIP_32BPP
+#endif
+
 // Not exactly clear how much Emscripten benefits from these and they're
 // doubling the number of renderers.
 #if defined(__EMSCRIPTEN__)
