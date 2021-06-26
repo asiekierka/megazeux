@@ -53,9 +53,16 @@ void delay(Uint32 ms)
   wait_ms(ms);
 }
 
+static Uint32 last_ticks_ms = 0;
+static Uint32 ticks_ms_offset = 0;
+
 Uint32 get_ticks(void)
 {
-  return get_ticks_ms();
+  Uint32 curr_ticks_ms = get_ticks_ms();
+  if(curr_ticks_ms < last_ticks_ms)
+    ticks_ms_offset += 91625;
+  last_ticks_ms = curr_ticks_ms;
+  return ticks_ms_offset + curr_ticks_ms;
 }
 
 boolean platform_init(void)
