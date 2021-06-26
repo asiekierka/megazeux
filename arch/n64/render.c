@@ -26,7 +26,6 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include <malloc.h>
 #include <libdragon.h>
 
 // #define HIDE_RENDERER_FOR_TESTING
@@ -132,9 +131,9 @@ static void n64_update_colors(struct graphics_data *graphics,
 #ifdef RENDERER_ACCELERATED
       render_data->palette32[i] = graphics->flat_intensity_palette[i] * 0x10001;
       render_data->palette32_blend[i] = 0xFF
-        | (((palette[i].b & 0xF8) | (palette[i].b >> 5)) << 8)
-        | (((palette[i].g & 0xF8) | (palette[i].g >> 5)) << 16)
-        | (((palette[i].r & 0xF8) | (palette[i].r >> 5)) << 24);
+        | (((palette[i].b & 0xF8) | (palette[i].b >> 8)) << 8)
+        | (((palette[i].g & 0xF8) | (palette[i].g >> 8)) << 16)
+        | (((palette[i].r & 0xF8) | (palette[i].r >> 8)) << 24);
 #endif
     }
   }
@@ -183,17 +182,19 @@ static inline void n64_rdp_set_combine_mode_1(int a_clr, int b_clr, int c_clr, i
 
 static inline void n64_draw_fg_accel(struct graphics_data *graphics, struct n64_render_data *render_data, uint8_t offset)
 {
+  rdp_sync(SYNC_TILE);
+
   if(!render_data->tlut_loaded)
   {
-for (int i = 0; i < 4; i++) {
-    __rdp_ringbuffer_queue( 0xFD100000 );
-    __rdp_ringbuffer_queue( (uint32_t) fg_tlut_map );
-    __rdp_ringbuffer_send();
+    for (int i = 0; i < 4; i++) {
+      __rdp_ringbuffer_queue( 0xFD100000 );
+      __rdp_ringbuffer_queue( (uint32_t) fg_tlut_map );
+      __rdp_ringbuffer_send();
 
-    __rdp_ringbuffer_queue( 0xF5000000 | 0x100 );
-    __rdp_ringbuffer_queue( 0x00000000 );
-    __rdp_ringbuffer_send();
-}
+      __rdp_ringbuffer_queue( 0xF5000000 | 0x100 );
+      __rdp_ringbuffer_queue( 0x00000000 );
+      __rdp_ringbuffer_send();
+    }
 
     __rdp_ringbuffer_queue( 0xF0000000 );
     __rdp_ringbuffer_queue( 79 << 14 );
@@ -211,7 +212,7 @@ for (int i = 0; i < 4; i++) {
   __rdp_ringbuffer_send();
 
   __rdp_ringbuffer_queue( 0xF4000000 );
-  __rdp_ringbuffer_queue( (63 << 14) | (63 << 2) );
+  __rdp_ringbuffer_queue( (63 << 14) | (61 << 2) );
   __rdp_ringbuffer_send();
 
   // Configure tile descriptors
@@ -298,30 +299,41 @@ static void n64_render_graph(struct graphics_data *graphics)
 
   // Accelerated codepath for mode 0
   n64_start_rdp(render_data);
-  rdp_enable_primitive_fill();
-
-  rdp_sync(SYNC_PIPE);
+  __rdp_ringbuffer_queue( 0xEF3000FF );
+  __rdp_ringbuffer_queue( 0x00004000 );
+  __rdp_ringbuffer_send();
 
   // Queue the filled BG rectangles to draw
   {
     struct char_element *text_cell = graphics->text_video;
-    uint32_t color = 0xAA55AA55;
+    uint8_t curr_bg_color = 255;
     for (uint32_t y = 0; y < 25; y++) {
       uint32_t prev_x = 0;
+      int ty = y * 14 + DISP_Y_OFFSET;
+      int by = ty + 14;
       for (uint32_t x = 0; x < 80; x++, text_cell++) {
-        uint32_t new_color = render_data->palette32[(*text_cell).bg_color];
-        if (color != new_color)
+        uint8_t bg_color = (*text_cell).bg_color;
+        if (curr_bg_color != bg_color)
         {
           if (prev_x != x)
           {
-            rdp_draw_filled_rectangle(prev_x * 8, y * 14 + DISP_Y_OFFSET, (x * 8), (y * 14) + 14 + DISP_Y_OFFSET);
+            int tx = prev_x * 8;
+            int bx = x * 8;
+            __rdp_ringbuffer_queue( 0xF6000000 | ( bx << 14 ) | ( by << 2 ) );
+            __rdp_ringbuffer_queue( ( tx << 14 ) | ( ty << 2 ) );
+            __rdp_ringbuffer_send();
             prev_x = x;
           }
+          uint32_t new_color = render_data->palette32[(*text_cell).bg_color];
           rdp_set_primitive_color(new_color);
-          color = new_color;
+          curr_bg_color = bg_color;
         }
       }
-      rdp_draw_filled_rectangle(prev_x * 8, y * 14 + DISP_Y_OFFSET, (80 * 8), (y * 14) + 14 + DISP_Y_OFFSET);
+      int tx = prev_x * 8;
+      int bx = 80 * 8;
+      __rdp_ringbuffer_queue( 0xF6000000 | ( bx << 14 ) | ( by << 2 ) );
+      __rdp_ringbuffer_queue( ( tx << 14 ) | ( ty << 2 ) );
+      __rdp_ringbuffer_send();
     }
   }
 
@@ -333,8 +345,6 @@ static void n64_render_graph(struct graphics_data *graphics)
     render_data->fg_texture_changed = false;
   }
 
-  rdp_sync(SYNC_PIPE);
-
   __rdp_ringbuffer_queue( 0xEF0008F0 | 0xC000 );
   __rdp_ringbuffer_queue( 0xA0400000 | 0x4000 | 0x40 );
   __rdp_ringbuffer_send();
@@ -342,8 +352,6 @@ static void n64_render_graph(struct graphics_data *graphics)
   n64_rdp_set_combine_mode_1(6, 0xF, 1, 7, 1, 7, 0, 7);
 
   n64_draw_fg_accel(graphics, render_data, 0x00);
-
-  rdp_sync(SYNC_PIPE);
 
   n64_draw_fg_accel(graphics, render_data, 0x20);
 #else
@@ -470,19 +478,6 @@ static void n64_remap_charbyte(struct graphics_data *graphics, uint16_t chr,
  uint8_t byte)
 {
   n64_remap_char(graphics, chr);
-  /*
-  if (chr > 0xFF) return;
-  chr &= 0x3F;
-
-  struct n64_render_data *render_data = graphics->render_data;
-  uint8_t *c = graphics->charset + (chr * CHAR_SIZE) + byte;
-  uint32_t t = lut_expand_8_32[c[0]]
-    | (lut_expand_8_32[c[0x40 * CHAR_SIZE]] << 1)
-    | (lut_expand_8_32[c[0x80 * CHAR_SIZE]] << 2)
-    | (lut_expand_8_32[c[0xC0 * CHAR_SIZE]] << 3);
-
-  render_data->fg_texture[((chr >> 4) * 256) + (byte * 16) + (chr & 0x0F)] = t;
-  render_data->fg_texture_changed = true; */
 }
 
 
